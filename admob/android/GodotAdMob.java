@@ -267,7 +267,7 @@ public class GodotAdMob extends Godot.SingletonBase
 						Log.w("godot", "AdMob: onAdFailedToLoad -> " + str);
 						Log.w("godot", "AdMob: callbackfunction -> " + callbackFunctionName);
 						
-						GodotLib.calldeferred(instance_id, callbackFunctionName, new Object[]{ });
+						GodotLib.calldeferred(instance_id, callbackFunctionName, new Object[]{ errorCode });
 					}
 				});
 				layout.addView(adView, adParams);
@@ -407,7 +407,7 @@ public class GodotAdMob extends Godot.SingletonBase
 					public void onAdFailedToLoad(int errorCode) {
 						Log.w("godot", "AdMob: onAdFailedToLoad(int errorCode) - error code: " + Integer.toString(errorCode));
 						Log.w("godot", "AdMob: _on_interstitial_not_loaded");
-						GodotLib.calldeferred(instance_id, "_on_interstitial_not_loaded", new Object[] { });
+						GodotLib.calldeferred(instance_id, "_on_interstitial_not_loaded", new Object[] { errorCode });
 					}
 
 					@Override
