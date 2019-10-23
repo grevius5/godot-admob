@@ -104,7 +104,7 @@ public class GodotAdMob extends Godot.SingletonBase
 
 	/* Rewarded Video
 	 * ********************************************************************** */
-	private void initRewardedVideo()
+	private void initRewardedVideo(final String id)
 	{
 		activity.runOnUiThread(new Runnable()
 		{
@@ -117,31 +117,33 @@ public class GodotAdMob extends Godot.SingletonBase
 					@Override
 					public void onRewardedVideoAdLeftApplication() {
 						Log.w("godot", "AdMob: onRewardedVideoAdLeftApplication");
-						GodotLib.calldeferred(instance_id, "_on_rewarded_video_ad_left_application", new Object[] { });
+						GodotLib.calldeferred(instance_id, "_on_rewarded_video_left_application", new Object[] { });
 					}
 
 					@Override
 					public void onRewardedVideoAdClosed() {
+						rewardedVideoAd.loadAd(id, getAdRequest());
+						
 						Log.w("godot", "AdMob: onRewardedVideoAdClosed");
-						GodotLib.calldeferred(instance_id, "_on_rewarded_video_ad_closed", new Object[] { });
+						GodotLib.calldeferred(instance_id, "_on_rewarded_video_closed", new Object[] { });
 					}
 
 					@Override
 					public void onRewardedVideoAdFailedToLoad(int errorCode) {
 						Log.w("godot", "AdMob: onRewardedVideoAdFailedToLoad. errorCode: " + errorCode);
-						GodotLib.calldeferred(instance_id, "_on_rewarded_video_ad_failed_to_load", new Object[] { errorCode });
+						GodotLib.calldeferred(instance_id, "_on_rewarded_video_failed_to_load", new Object[] { errorCode });
 					}
 
 					@Override
 					public void onRewardedVideoAdLoaded() {
 						Log.w("godot", "AdMob: onRewardedVideoAdLoaded");
-						GodotLib.calldeferred(instance_id, "_on_rewarded_video_ad_loaded", new Object[] { });
+						GodotLib.calldeferred(instance_id, "_on_rewarded_video_loaded", new Object[] { });
 					}
 
 					@Override
 					public void onRewardedVideoAdOpened() {
 						Log.w("godot", "AdMob: onRewardedVideoAdOpened");
-						GodotLib.calldeferred(instance_id, "_on_rewarded_video_ad_opened", new Object[] { });
+						GodotLib.calldeferred(instance_id, "_on_rewarded_video_opened", new Object[] { });
 					}
 
 					@Override
@@ -179,7 +181,7 @@ public class GodotAdMob extends Godot.SingletonBase
 			@Override public void run()
 			{
 				if (rewardedVideoAd == null) {
-					initRewardedVideo();
+					initRewardedVideo(id);
 				}
 
 				if (!rewardedVideoAd.isLoaded()) {
@@ -233,19 +235,23 @@ public class GodotAdMob extends Godot.SingletonBase
 				adView.setBackgroundColor(Color.TRANSPARENT);
 
 				adView.setAdSize(AdSize.SMART_BANNER);
+
+				adView.setVisibility(View.GONE);
+				adView.pause();
+
 				adView.setAdListener(new AdListener()
 				{
 					@Override
 					public void onAdLoaded() {
-						Log.w("godot", "AdMob: onAdLoaded");
-						GodotLib.calldeferred(instance_id, "_on_admob_ad_loaded", new Object[]{ });
+						Log.w("godot", "AdMob: onBannerLoaded");
+						GodotLib.calldeferred(instance_id, "_on_banner_loaded", new Object[]{ });
 					}
 
 					@Override
 					public void onAdFailedToLoad(int errorCode)
 					{
 						String	str;
-						String callbackFunctionName = "_on_admob_banner_failed_to_load";
+						String callbackFunctionName = "_on_banner_failed_to_load";
 						switch(errorCode) {
 							case AdRequest.ERROR_CODE_INTERNAL_ERROR:
 								str	= "ERROR_CODE_INTERNAL_ERROR";
@@ -342,9 +348,6 @@ public class GodotAdMob extends Godot.SingletonBase
 		});
 	}
 
-
-
-
 	/**
 	 * Hide the banner
 	 */
@@ -399,37 +402,37 @@ public class GodotAdMob extends Godot.SingletonBase
 				{
 					@Override
 					public void onAdLoaded() {
-						Log.w("godot", "AdMob: onAdLoaded");
+						Log.w("godot", "AdMob: onInterstitialLoaded");
 						GodotLib.calldeferred(instance_id, "_on_interstitial_loaded", new Object[] { });
 					}
 
 					@Override
 					public void onAdFailedToLoad(int errorCode) {
-						Log.w("godot", "AdMob: onAdFailedToLoad(int errorCode) - error code: " + Integer.toString(errorCode));
-						Log.w("godot", "AdMob: _on_interstitial_not_loaded");
-						GodotLib.calldeferred(instance_id, "_on_interstitial_not_loaded", new Object[] { errorCode });
+						Log.w("godot", "AdMob: _on_interstitial_failed_to_load - error code: " + Integer.toString(errorCode));
+						GodotLib.calldeferred(instance_id, "_on_interstitial_failed_to_load", new Object[] { errorCode });
 					}
 
 					@Override
 					public void onAdOpened() {
-						Log.w("godot", "AdMob: onAdOpened()");
+						Log.w("godot", "AdMob: onInterstitialOpened");
+						GodotLib.calldeferred(instance_id, "_on_interstitial_opened", new Object[] { });
 					}
 
 					@Override
 					public void onAdLeftApplication() {
-						Log.w("godot", "AdMob: onAdLeftApplication()");
+						Log.w("godot", "AdMob: onInterstitialLeftApplication");
+						GodotLib.calldeferred(instance_id, "_on_interstitial_left_application", new Object[] { });
 					}
 
 					@Override
 					public void onAdClosed() {
-						GodotLib.calldeferred(instance_id, "_on_interstitial_close", new Object[] { });
-
+						// On close load new interstitial
 						interstitialAd.loadAd(getAdRequest());
 
-						Log.w("godot", "AdMob: onAdClosed");
+						Log.w("godot", "AdMob: onInterstitialClosed");
+						GodotLib.calldeferred(instance_id, "_on_interstitial_closed", new Object[] { });
 					}
 				});
-
 
 
 				interstitialAd.loadAd(getAdRequest());
